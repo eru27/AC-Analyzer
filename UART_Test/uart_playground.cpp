@@ -17,7 +17,6 @@ struct sample_packet
 } __attribute__((packed));
 
 
-
 UART u
 (
 	DEV,
