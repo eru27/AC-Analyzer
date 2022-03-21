@@ -6,24 +6,16 @@
 #include <thread>
 using namespace std;
 
-#define DEV "/dev/ttyUSB1"
+#define DEV "/dev/ttyUSB2"
 #define BAUDRATE 115200
 
 #define DEBUG(var) do { cout << #var << " = " << var << endl; } while(false)
 
 struct sample_packet
 {
-	uint8_t  a[6];
+	uint32_t magic;
+  	uint16_t  val_array[6];
 } __attribute__((packed));
-
-void print_packet(sample_packet packet)
-{
-	for (int i = 0; i < 6; i++)
-	{
-		cout << (int) packet.a[i] << " ";
-	}
-	cout << endl;
-}
 
 UART u
 (
@@ -33,18 +25,15 @@ UART u
 
 enum fsm_states {FF1, FF2, FF3, OO4, JUNK};
 
-int main(int argc, char** argv) 
+void find_magic_word()
 {
 	fsm_states fsm = JUNK;
-	while(1)
-	{
-		sample_packet packet;
+	uint8_t x;
 
-		uint8_t x = u.read<uint8_t>();
-		//DEBUG((int) x);
-		// magic number 0xff, 0xff, 0xff, 0x00
-		//cout << fsm << endl;
-		//DEBUG((int) x);
+	while(fsm != OO4)
+	{
+		x = u.read<uint8_t>();
+
 		if (fsm == FF1)
 		{
 			if (x == 0xff)
@@ -84,16 +73,6 @@ int main(int argc, char** argv)
 		}
 		else if (fsm == OO4)
 		{
-			packet.a[0] = x;
-
-			for (int i = 1; i < 6; i++)
-			{
-				x = u.read<uint8_t>();
-				packet.a[i] = x;
-			}
-			
-			print_packet(packet);
-			x = u.read<uint8_t>();
 			if (x == 0xff)
 			{
 				fsm = FF1;
@@ -111,9 +90,37 @@ int main(int argc, char** argv)
 			}
 		}
 	}
-	
 
-	// sample_packet p = u.read<sample_packet>();
+	for (int i = 0; i < 6; i++)
+	{
+		u.read<uint16_t>();
+	}
+}
+
+int main(int argc, char** argv) 
+{
+	sample_packet packet;
+	uint16_t x;
+	while(1)
+	{
+		packet = u.read<sample_packet>();
+
+		if (packet.magic != 0x00ffffff) //little endian
+		{
+			// magic number 0xff, 0xff, 0xff, 0x00
+			find_magic_word();
+			cout << "ERROR\n";
+		}
+		else
+		{
+			for (int i = 0; i < 6; i++)
+			{
+				cout << (int) packet.val_array[i] << " ";
+			}
+		}
+
+		cout << endl;	
+	}
 
 	return 0;
 }

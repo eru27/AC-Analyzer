@@ -2,7 +2,7 @@
 struct sample_packet
 {
   uint32_t magic;
-  uint16_t  val_array[3];
+  uint16_t  val_array[6];
 } __attribute__((packed));
 
 sample_packet pack;
@@ -18,22 +18,17 @@ void setup() {
 
 // the loop routine runs over and over again forever:
 void loop() {
- uint16_t a = 0;
-  
-  for (int i = 0; i < 3; ++i)
-  {
-    a = analogRead(A0);
-    pack.val_array[i] = a;
-  }
+
+  pack.val_array[0] = analogRead(A0);
+  pack.val_array[1] = analogRead(A1);
+  pack.val_array[2] = analogRead(A2);
+  pack.val_array[3] = analogRead(A3);
+  pack.val_array[4] = analogRead(A4);
+  pack.val_array[5] = analogRead(A5);
 
   uint8_t* pack_pointer = (uint8_t*) &pack;
 
   Serial.write(pack_pointer, sizeof(sample_packet));
-  
-  //Serial.write(0xFF);
-  //Serial.write(0xFF);
-  //Serial.write(0xFF);
-  //Serial.write(0x00);
   
   delay(200);
 }
