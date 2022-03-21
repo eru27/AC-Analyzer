@@ -2,7 +2,7 @@
 struct sample_packet
 {
   uint32_t magic;
-  uint16_t  val_array[6];
+  uint16_t  val_array[3];
 } __attribute__((packed));
 
 sample_packet pack;
@@ -20,7 +20,7 @@ void setup() {
 void loop() {
  uint16_t a = 0;
   
-  for (int i = 0; i < 6; ++i)
+  for (int i = 0; i < 3; ++i)
   {
     a = analogRead(A0);
     pack.val_array[i] = a;
