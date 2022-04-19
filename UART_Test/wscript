@@ -20,57 +20,64 @@ import waflib
 
 ###############################################################################
 
-APPNAME = 'UART_Test'
+APPNAME = 'cherry_detection'
 
 top = '.'
 
 ###############################################################################
 
+programs_for_test = [
+	'ball_detection',
+	'cherry_detection',
+]
+
+programs_for_install = [
+	'ball_uart_chassis',
+]
 
 def prerequisites(ctx):
-	
 	if sys.platform.startswith('linux'):
 		# Ubuntu.
-		ctx.exec_command2('')
+		ctx.exec_command2('apt -y install libhdf5-dev')
 	elif sys.platform == 'win32' and os.name == 'nt' and os.path.sep == '/':
 		# MSYS2 Windows /mingw32/bin/python.
 		ctx.exec_command2(
-			#TODO 'pacman --noconfirm -S '
+			'pacman --noconfirm -S mingw-w64-i686-???'
 		)
 
 def options(opt):
 	opt.load('gcc gxx')
 	
-	opt.add_option(
-		'--app',
-		dest = 'app',
-		default = None,
-		help = 'App to be run'
-	)
-	
 def configure(cfg):
 	cfg.load('gcc gxx')
 	
-	cfg.env.append_value('CFLAGS', '-std=c99')
 	cfg.env.append_value('CXXFLAGS', '-std=c++11')
-
+	#cfg.env.append_value('LIB', 'pthread')
+	cfg.env.append_value('CXXFLAGS', '-g -rdynamic'.split()) # For debug.
+	
+	cfg.check_cfg(
+		package = 'hdf5',
+		uselib_store = 'HDF5',
+		args = '--cflags --libs',
+		mandatory = True
+	)
 
 def build(bld):
 	bld.program(
 		features = 'cxx',
-		source = ['UART.cpp', 'uart_playground.cpp'],
-		target = 'uart_playground'
+		source = ['glob.cpp', 'UART.cpp', 'USB_Logger.cpp'],
+		target = 'USB_Logger',
+		use = 'HDF5',
+		install_path = False
 	)
-	
 
 def run(ctx):
-	'''./waf run --app=<NAME>'''
-	if ctx.options.app:
-		if sys.platform == 'win32':
-			# MSYS2
-			ctx.exec_command2('build\\' + ctx.options.app)
-		else:
-			ctx.exec_command2('./build/' + ctx.options.app)
+	a = 'USB_Logger'
+	if sys.platform == 'win32':
+		# MSYS2
+		ctx.exec_command2('build\\' + a)
+	else:
+		ctx.exec_command2('./build/' + a)
 
 ###############################################################################
 
