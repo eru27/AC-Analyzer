@@ -1,13 +1,12 @@
-
 #include "UART.hpp"
-#include "hdf5_write.cpp"
-//#include <iostream>
+#include "hdf5_write.hpp"
+#include <iostream>
 #include <fstream>
 #include <chrono>
 #include <thread>
-//using namespace std;
+using namespace std;
 
-#define DEV "/dev/ttyUSB2"
+#define DEV "/dev/ttyUSB0"
 #define BAUDRATE 115200
 
 #define DEBUG(var) do { cout << #var << " = " << var << endl; } while(false)
@@ -15,7 +14,7 @@
 struct sample_packet
 {
 	uint32_t magic;
-  	uint16_t  val_array[6];
+  	uint16_t val_array[6];
 } __attribute__((packed));
 
 UART u
@@ -119,7 +118,7 @@ int main(int argc, char** argv)
 				cout << (int) packet.val_array[i] << " ";
 			}
 
-			hdf5_write();
+			hdf5_write(packet.val_array);
 		}
 
 		cout << endl;	

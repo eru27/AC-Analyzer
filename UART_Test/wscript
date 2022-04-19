@@ -64,19 +64,28 @@ def configure(cfg):
 	#cfg.env.append_value('LIB', 'pthread')
 	cfg.env.append_value('CXXFLAGS', '-g -rdynamic'.split()) # For debug.
 	
-	cfg.check_cfg(
-		package = 'hdf5',
-		uselib_store = 'HDF5',
-		args = '--cflags --libs',
-		mandatory = True
+	#cfg.check_cfg(
+	#	package = 'hdf5',
+	#	uselib_store = 'HDF5',
+	#	args = '--cflags --libs',
+	#	mandatory = True
+	#)
+	cfg.check_cxx(
+		header_name = 'H5Cpp.h',
+		uselib_store = 'HDF5_CPP_H'
 	)
+	cfg.check_cxx(
+		lib = ['hdf5', 'hdf5_cpp'],
+		uselib_store = 'HDF5_CPP_LIB'
+	)
+	
 
 def build(bld):
 	bld.program(
 		features = 'cxx',
 		source = ['UART.cpp', 'uart_playground.cpp', 'hdf5_write.cpp'],
 		target = 'uart_playground',
-		use = 'HDF5',
+		use = 'HDF5_CPP_H HDF5_CPP_LIB',
 		install_path = False
 	)
 

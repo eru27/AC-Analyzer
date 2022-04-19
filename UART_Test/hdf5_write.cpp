@@ -19,32 +19,21 @@
 
 #include <string>
 #include "H5Cpp.h"
+#include "hdf5_write.hpp"
+
 using namespace H5;
 
 const H5std_string FILE_NAME("SDS.h5");
-const H5std_string DATASET_NAME("IntArray");
-const int          NX   = 5; // dataset dimensions
-const int          NY   = 6;
-const int          RANK = 2;
+const H5std_string DATASET_NAME("uint16_tArray");
+const int          RANK = 1;
+const int          DATA_SIZE = 6;
 
-int hdf5_write(void)
+int hdf5_write(uint16_t data[DATA_SIZE])
 {
     /*
      * Data initialization.
      */
-    int i, j;
-    int data[NX][NY]; // buffer for data to write
-    for (j = 0; j < NX; j++) {
-        for (i = 0; i < NY; i++)
-            data[j][i] = i + j;
-    }
-    /*
-     * 0 1 2 3 4 5
-     * 1 2 3 4 5 6
-     * 2 3 4 5 6 7
-     * 3 4 5 6 7 8
-     * 4 5 6 7 8 9
-     */
+    int i;
 
     // Try block to detect exceptions raised by any of the calls inside it
     try {
@@ -65,16 +54,15 @@ int hdf5_write(void)
          * Define the size of the array and create the data space for fixed
          * size dataset.
          */
-        hsize_t dimsf[2]; // dataset dimensions
-        dimsf[0] = NX;
-        dimsf[1] = NY;
+        hsize_t dimsf[1]; // dataset dimensions
+        dimsf[0] = DATA_SIZE;
         DataSpace dataspace(RANK, dimsf);
 
         /*
          * Define datatype for the data in the file.
          * We will store little endian INT numbers.
          */
-        IntType datatype(PredType::NATIVE_INT);
+        IntType datatype(PredType::NATIVE_UINT16);
         datatype.setOrder(H5T_ORDER_LE);
 
         /*
@@ -87,7 +75,7 @@ int hdf5_write(void)
          * Write the data to the dataset using default memory space, file
          * space, and transfer properties.
          */
-        dataset.write(data, PredType::NATIVE_INT);
+        dataset.write(data, PredType::NATIVE_UINT16);
     } // end of try block
 
     // catch failure caused by the H5File operations
