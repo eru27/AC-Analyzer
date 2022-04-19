@@ -27,8 +27,7 @@ const int          NX   = 5; // dataset dimensions
 const int          NY   = 6;
 const int          RANK = 2;
 
-int
-main(void)
+int hdf5_write(void)
 {
     /*
      * Data initialization.

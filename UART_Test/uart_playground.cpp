@@ -5,7 +5,7 @@
 #include <fstream>
 #include <chrono>
 #include <thread>
-using namespace std;
+//using namespace std;
 
 #define DEV "/dev/ttyUSB2"
 #define BAUDRATE 115200
@@ -118,6 +118,8 @@ int main(int argc, char** argv)
 			{
 				cout << (int) packet.val_array[i] << " ";
 			}
+
+			hdf5_write();
 		}
 
 		cout << endl;	
